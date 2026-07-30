@@ -55,8 +55,8 @@
             "useImportType": "off"
           },
           "correctness": {
-            "noUnusedVariables": "off",
-            "noUnusedImports": "off"
+            "noUnusedVariables": "on",
+            "noUnusedImports": "on"
           }
         }
       }

@@ -290,8 +290,16 @@ const siteLang = lang.replace("_", "-");
         isDark ? darkTheme : lightTheme
       );
 
-      // Load the hue from local storage
-      const hue = localStorage.getItem("hue") || configHue;
+      // Load the hue from local storage, but detect config changes
+      const savedConfigHue = localStorage.getItem("configHueVersion");
+      let hue;
+      if (savedConfigHue !== String(configHue)) {
+        localStorage.removeItem("hue");
+        localStorage.removeItem("configHueVersion");
+        hue = configHue;
+      } else {
+        hue = localStorage.getItem("hue") || configHue;
+      }
       document.documentElement.style.setProperty("--hue", hue);
 
       // 设置卡片透明度（全屏透明模式下使用），优先使用用户自定义值

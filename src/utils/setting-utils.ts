@@ -62,16 +62,24 @@ export function resolveTheme(theme: LIGHT_DARK_MODE): LIGHT_DARK_MODE {
 }
 
 export function getHue(): number {
-	// 先检查全局对象
 	if (typeof window === "undefined" || !window.localStorage) {
 		return getDefaultHue();
 	}
 	const stored = localStorage.getItem("hue");
-	return stored ? Number.parseInt(stored, 10) : getDefaultHue();
+	if (stored === null) {
+		return getDefaultHue();
+	}
+	const savedVersion = localStorage.getItem("configHueVersion");
+	const currentVersion = String(getDefaultHue());
+	if (savedVersion !== currentVersion) {
+		localStorage.removeItem("hue");
+		localStorage.removeItem("configHueVersion");
+		return getDefaultHue();
+	}
+	return Number.parseInt(stored, 10);
 }
 
 export function setHue(hue: number): void {
-	// 先检查是否在浏览器环境
 	if (
 		typeof window === "undefined" ||
 		!window.localStorage ||
@@ -80,6 +88,10 @@ export function setHue(hue: number): void {
 		return;
 	}
 	localStorage.setItem("hue", String(hue));
+	const configCarrier = document.getElementById("config-carrier");
+	if (configCarrier?.dataset.hue) {
+		localStorage.setItem("configHueVersion", configCarrier.dataset.hue);
+	}
 	const r = document.querySelector(":root") as HTMLElement;
 	if (!r) {
 		return;

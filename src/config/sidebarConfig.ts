@@ -142,7 +142,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			specificConfig: {
 				siteInfo: {
 					// 未能识别的构建平台回退显示文本，可自定义
-					unknownBuildPlatform: "Unknown CI",
+					unknownBuildPlatform: "Alibaba ECS",
 				},
 			},
 		},
@@ -181,7 +181,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			// 组件类型：广告栏组件 1
 			type: "advertisement",
 			// 是否启用该组件
-			enable: false,
+			enable: true,
 			// 是否显示组件标题
 			showTitle: false,
 			// 组件位置
@@ -192,9 +192,9 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			specificConfig: {
 				ad: {
 					image: {
-						src: "/assets/images/ad/ad1.webp",
-						alt: "广告横幅",
-						link: "https://haoka.lot-ml.com/plugreg.html?agentid=1423316",
+						src: "/assets/images/ad/freshatlas.webp",
+						alt: "推荐",
+						link: "https://github.com/ArtveFlinaInBupt/freshatlas",
 						external: true,
 					},
 					// 是否允许关闭广告
@@ -212,7 +212,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			// 组件类型：广告栏组件 2
 			type: "advertisement",
 			// 是否启用该组件
-			enable: false,
+			enable: true,
 			// 组件位置
 			position: "sticky",
 			// 是否在文章详情页显示
@@ -222,11 +222,11 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 				ad: {
 					title: "支持博主",
 					content:
-						"如果您觉得本站内容对您有帮助，欢迎支持我们的创作！您的支持是我们持续更新的动力。",
+						"如果您觉得本站内容对您有帮助，欢迎支持我的创作！",
 					link: {
 						text: "支持一下",
-						url: "about/",
-						external: false,
+						url: "https://www.ifdian.net/a/xtopia5616",
+						external: true,
 					},
 					closable: false,
 					displayCount: -1,
@@ -314,7 +314,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			specificConfig: {
 				siteInfo: {
 					// 未能识别的构建平台回退显示文本，可自定义
-					unknownBuildPlatform: "Unknown CI",
+					unknownBuildPlatform: "Alibaba ECS",
 				},
 			},
 		},
