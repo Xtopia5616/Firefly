@@ -104,6 +104,14 @@ const minutes = remarkPluginFrontmatter.minutes;
   ]}
   style={style}
 >
+  <!-- 整卡可点击：拉伸链接覆盖整卡，其余交互控件通过更高 z-index 保持可用 -->
+  <a
+    href={url}
+    aria-label={title}
+    class="post-card-stretched-link
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--primary)"
+  />
+
   <!-- pinned icon -->
   <div
     class:list={[
@@ -264,6 +272,37 @@ const minutes = remarkPluginFrontmatter.minutes;
 </div>
 
 <style define:vars={{ coverWidth, descriptionClampLines }}>
+  /* === 整卡可点击 === */
+  /* 拉伸链接覆盖整个卡片：点击卡片任意位置都能进入文章 */
+  .post-card-stretched-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* 卡片内需要保持可用的交互控件，置于拉伸链接之上 */
+  /* 标题本身是 flex 项，直接设 z-index 即可提升层级，不能加 position:relative
+     （否则标题前的装饰竖线 before 的定位基准会变成标题自身，导致位置错乱） */
+  .post-card-title {
+    z-index: 2;
+  }
+
+  .post-card-bottom-tags a {
+    position: relative;
+    z-index: 2;
+  }
+
+  .post-card-image,
+  .post-card-enter-btn {
+    z-index: 2;
+  }
+
+  /* PostMeta（分类/标签链接）来自其他组件，用 :global 提升层级 */
+  .post-card-wrapper :global(.post-meta-root a) {
+    position: relative;
+    z-index: 2;
+  }
+
   .description-clamped {
     display: -webkit-box;
     -webkit-box-orient: vertical;
