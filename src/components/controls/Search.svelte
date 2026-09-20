@@ -127,6 +127,33 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 	}, 300); // 300ms debounce
 };
 
+// --- Lazy Pagefind Loading ---
+let pagefindLoading: Promise<void> | null = null;
+
+const loadPagefind = (): void => {
+	if (import.meta.env.DEV || pagefindLoading || window.pagefind) return;
+	pagefindLoading = (async () => {
+		const scriptUrl = formatUrl("/pagefind/pagefind.js");
+		try {
+			const response = await fetch(scriptUrl, { method: "HEAD" });
+			if (!response.ok) {
+				throw new Error(`Pagefind script not found: ${response.status}`);
+			}
+			const pagefind = await import(scriptUrl);
+			await pagefind.options({ excerptLength: 20 });
+			window.pagefind = pagefind;
+			document.dispatchEvent(new CustomEvent("pagefindready"));
+		} catch (error) {
+			console.error("Failed to load Pagefind:", error);
+			window.pagefind = {
+				search: () => Promise.resolve({ results: [] }),
+				options: () => Promise.resolve(),
+			};
+			document.dispatchEvent(new CustomEvent("pagefindloaderror"));
+		}
+	})();
+};
+
 // --- Initialization onMount ---
 onMount(() => {
 	const initializePagefind = () => {
@@ -155,6 +182,11 @@ onMount(() => {
 
 	const panel = document.getElementById("search-panel");
 	panel?.addEventListener(FLOATING_PANEL_CLOSE_EVENT, cancelPendingSearch);
+
+	// 首次与搜索交互时才加载 Pagefind，避免每个页面都下载搜索索引脚本
+	document.getElementById("search-input-desktop")?.addEventListener("focus", loadPagefind);
+	document.getElementById("search-switch")?.addEventListener("click", loadPagefind);
+	panel?.addEventListener("focusin", loadPagefind);
 
 	return () => {
 		panel?.removeEventListener(FLOATING_PANEL_CLOSE_EVENT, cancelPendingSearch);
