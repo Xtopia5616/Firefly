@@ -14,6 +14,7 @@ export function fetchWithDedup<T>(url: string): Promise<T> {
 		return r.json() as Promise<T>;
 	});
 	pendingFetches.set(url, promise);
-	promise.finally(() => pendingFetches.delete(url));
+	const cleanup = () => pendingFetches.delete(url);
+	promise.then(cleanup, cleanup);
 	return promise;
 }

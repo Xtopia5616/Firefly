@@ -25,8 +25,9 @@ import { url } from "@/utils/url-utils";
 }
 
 <!-- 引入消息框组件 -->
-<MessageBox />
+{spineModelConfig.enable && <MessageBox />}
 
+{spineModelConfig.enable && (
 <script is:inline define:vars={{ spineModelConfig, modelPath: url(spineModelConfig.model.path), atlasPath: url(spineModelConfig.model.path.replace(".json", ".atlas")), cssPath: url("/pio/static/spine-player.min.css"), jsPath: url("/pio/static/spine-player.min.js") }}>
   // 动态加载 Spine CSS（带本地备用）
   function loadSpineCSS() {
@@ -68,6 +69,7 @@ import { url } from "@/utils/url-utils";
   // 消息框功能已移至公共组件 MessageBox.astro
   let isClickProcessing = false; // 防止重复点击的标志
   let lastClickTime = 0; // 记录最后一次点击时间
+  let idleIntervalId = null;
 
   // 全局变量，防止重复初始化
   window.spineModelInitialized = window.spineModelInitialized || false;
@@ -105,6 +107,11 @@ import { url } from "@/utils/url-utils";
   // 清理函数
   function cleanupSpineModel() {
     console.log("🧹 Cleaning up existing Spine model...");
+
+    if (idleIntervalId !== null) {
+      clearInterval(idleIntervalId);
+      idleIntervalId = null;
+    }
 
     // 清理消息显示（使用公共组件）
     if (window.clearModelMessage) {
@@ -371,7 +378,7 @@ import { url } from "@/utils/url-utils";
 
               // 设置待机动画循环（仅在至少两个有效待机动画时启用）
               if (validIdleAnims.length > 1) {
-                setInterval(() => {
+                idleIntervalId = setInterval(() => {
                   const randomIdle = pickRandom(validIdleAnims);
                   safeSetAnimation(randomIdle, true);
                 }, spineModelConfig.interactive.idleInterval);
@@ -424,9 +431,9 @@ import { url } from "@/utils/url-utils";
   // 监听 Swup 页面切换事件（如果使用了 Swup）
   if (typeof window.swup !== "undefined" && window.swup.hooks) {
     window.swup.hooks.on("content:replace", () => {
-      // 只更新响应式显示，不重新创建模型
+      cleanupSpineModel();
       setTimeout(() => {
-        updateResponsiveDisplay();
+        initSpineModel();
       }, 100);
     });
   }
@@ -448,3 +455,4 @@ import { url } from "@/utils/url-utils";
     initSpineModel();
   }
 </script>
+)}

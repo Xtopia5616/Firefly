@@ -33,13 +33,22 @@ const fakeResult: SearchResult[] = [
 ];
 
 // --- UI Logic ---
+// pagefind.js 是按需加载的（见 Navbar.astro），搜索 UI 一被碰到就触发。
+// 幂等，重复调用只会拿到同一个 promise。
+const requestPagefind = (): void => {
+	window.__loadPagefind?.();
+};
+
 const togglePanel = () => {
+	requestPagefind();
 	document
 		.getElementById("search-panel")
 		?.classList.toggle("float-panel-closed");
 };
 
 const handleDesktopFocus = (event: FocusEvent): void => {
+	requestPagefind();
+
 	const input = event.currentTarget;
 	if (
 		input instanceof HTMLElement &&
@@ -184,8 +193,12 @@ onMount(() => {
 	panel?.addEventListener(FLOATING_PANEL_CLOSE_EVENT, cancelPendingSearch);
 
 	// 首次与搜索交互时才加载 Pagefind，避免每个页面都下载搜索索引脚本
-	document.getElementById("search-input-desktop")?.addEventListener("focus", loadPagefind);
-	document.getElementById("search-switch")?.addEventListener("click", loadPagefind);
+	document
+		.getElementById("search-input-desktop")
+		?.addEventListener("focus", loadPagefind);
+	document
+		.getElementById("search-switch")
+		?.addEventListener("click", loadPagefind);
 	panel?.addEventListener("focusin", loadPagefind);
 
 	return () => {
@@ -222,7 +235,7 @@ $: if (initialized && (keywordMobile || keywordMobile === "")) {
 
 <!-- toggle btn for phone/tablet view -->
 <button on:click={togglePanel} aria-label="Search Panel" aria-controls="search-panel" aria-expanded="false" id="search-switch"
-		class="btn-plain scale-animation lg:hidden! rounded-lg w-9 h-9 md:w-11 md:h-11 active:scale-90">
+		class="btn-plain scale-animation lg:hidden! rounded-lg w-11 h-11 active:scale-90">
     <Icon icon="material-symbols:search" class="text-[1.25rem]"></Icon>
 </button>
 
@@ -239,6 +252,7 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2"
         <Icon icon="material-symbols:search"
               class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
         <input placeholder={i18n(I18nKey.search)} bind:value={keywordMobile}
+               on:focus={requestPagefind}
                class="pl-10 absolute inset-0 text-sm bg-transparent outline-0
                focus:w-60 text-black/50 dark:text-white/50"
         >
